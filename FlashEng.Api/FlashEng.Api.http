@@ -1,0 +1,6 @@
+@FlashEng.Api_HostAddress = http://localhost:5082
+
+GET {{FlashEng.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
