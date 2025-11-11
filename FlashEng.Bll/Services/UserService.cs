@@ -24,13 +24,13 @@ namespace FlashEng.Bll.Services
             _mapper = mapper;
         }
 
-        public async Task<List<UserDto>> GetAllUsersAsync(CancellationToken cancellationToken = default)
+        public async Task<List<UserDto>> GetAllUsersAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var users = await _unitOfWork.Users.GetAllUsersAsync(cancellationToken);
             return _mapper.Map<List<UserDto>>(users);
         }
 
-        public async Task<UserDto?> GetUserByIdAsync(int userId, CancellationToken cancellationToken = default)
+        public async Task<UserDto> GetUserByIdAsync(int userId, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (userId <= 0)
                 throw new ValidationException("User ID must be positive");
@@ -39,7 +39,7 @@ namespace FlashEng.Bll.Services
             return user != null ? _mapper.Map<UserDto>(user) : null;
         }
 
-        public async Task<UserDto?> GetUserByEmailAsync(string email, CancellationToken cancellationToken = default)
+        public async Task<UserDto> GetUserByEmailAsync(string email, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (string.IsNullOrWhiteSpace(email))
                 throw new ValidationException("Email cannot be empty");
@@ -48,7 +48,7 @@ namespace FlashEng.Bll.Services
             return user != null ? _mapper.Map<UserDto>(user) : null;
         }
 
-        public async Task<int> CreateUserAsync(CreateUserDto createUserDto, CancellationToken cancellationToken = default)
+        public async Task<int> CreateUserAsync(CreateUserDto createUserDto, CancellationToken cancellationToken = default(CancellationToken))
         {
             // Валідація
             if (string.IsNullOrWhiteSpace(createUserDto.Email))
@@ -82,7 +82,7 @@ namespace FlashEng.Bll.Services
             return userId;
         }
 
-        public async Task<bool> UpdateUserAsync(int userId, UpdateUserDto updateUserDto, CancellationToken cancellationToken = default)
+        public async Task<bool> UpdateUserAsync(int userId, UpdateUserDto updateUserDto, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (userId <= 0)
                 throw new ValidationException("User ID must be positive");
@@ -99,7 +99,7 @@ namespace FlashEng.Bll.Services
             return await _unitOfWork.Users.UpdateUserAsync(existingUser, cancellationToken);
         }
 
-        public async Task<bool> DeleteUserAsync(int userId, CancellationToken cancellationToken = default)
+        public async Task<bool> DeleteUserAsync(int userId, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (userId <= 0)
                 throw new ValidationException("User ID must be positive");
@@ -111,7 +111,7 @@ namespace FlashEng.Bll.Services
             return await _unitOfWork.Users.DeleteUserAsync(userId, cancellationToken);
         }
 
-        public async Task<UserSettingsDto?> GetUserSettingsAsync(int userId, CancellationToken cancellationToken = default)
+        public async Task<UserSettingsDto> GetUserSettingsAsync(int userId, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (userId <= 0)
                 throw new ValidationException("User ID must be positive");
@@ -120,7 +120,7 @@ namespace FlashEng.Bll.Services
             return settings != null ? _mapper.Map<UserSettingsDto>(settings) : null;
         }
 
-        public async Task<bool> UpdateUserSettingsAsync(int userId, UserSettingsDto settingsDto, CancellationToken cancellationToken = default)
+        public async Task<bool> UpdateUserSettingsAsync(int userId, UserSettingsDto settingsDto, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (userId <= 0)
                 throw new ValidationException("User ID must be positive");

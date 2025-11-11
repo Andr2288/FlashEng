@@ -47,11 +47,11 @@ namespace FlashEng.Bll.Dto
         public string Category { get; set; } = string.Empty;
         public string EnglishWord { get; set; } = string.Empty;
         public string Translation { get; set; } = string.Empty;
-        public string? Definition { get; set; }
-        public string? ExampleSentence { get; set; }
-        public string? Pronunciation { get; set; }
-        public string? AudioUrl { get; set; }
-        public string? ImageUrl { get; set; }
+        public string Definition { get; set; }
+        public string ExampleSentence { get; set; }
+        public string Pronunciation { get; set; }
+        public string AudioUrl { get; set; }
+        public string ImageUrl { get; set; }
         public string Difficulty { get; set; } = string.Empty;
         public bool IsPublic { get; set; }
         public decimal? Price { get; set; }
@@ -65,9 +65,9 @@ namespace FlashEng.Bll.Dto
         public string Category { get; set; } = string.Empty;
         public string EnglishWord { get; set; } = string.Empty;
         public string Translation { get; set; } = string.Empty;
-        public string? Definition { get; set; }
-        public string? ExampleSentence { get; set; }
-        public string? Pronunciation { get; set; }
+        public string Definition { get; set; }
+        public string ExampleSentence { get; set; }
+        public string Pronunciation { get; set; }
         public string Difficulty { get; set; } = "Medium";
         public bool IsPublic { get; set; } = false;
         public decimal? Price { get; set; }
@@ -78,9 +78,9 @@ namespace FlashEng.Bll.Dto
         public string Category { get; set; } = string.Empty;
         public string EnglishWord { get; set; } = string.Empty;
         public string Translation { get; set; } = string.Empty;
-        public string? Definition { get; set; }
-        public string? ExampleSentence { get; set; }
-        public string? Pronunciation { get; set; }
+        public string Definition { get; set; }
+        public string ExampleSentence { get; set; }
+        public string Pronunciation { get; set; }
         public string Difficulty { get; set; } = string.Empty;
         public bool IsPublic { get; set; }
         public decimal? Price { get; set; }
@@ -93,7 +93,7 @@ namespace FlashEng.Bll.Dto
         public decimal TotalAmount { get; set; }
         public string Status { get; set; } = string.Empty;
         public DateTime OrderDate { get; set; }
-        public List<OrderItemDto> Items { get; set; } = new();
+        public List<OrderItemDto> Items { get; set; } = new List<OrderItemDto>();
     }
 
     public class OrderItemDto
@@ -110,7 +110,7 @@ namespace FlashEng.Bll.Dto
     public class CreateOrderDto
     {
         public int UserId { get; set; }
-        public List<CreateOrderItemDto> Items { get; set; } = new();
+        public List<CreateOrderItemDto> Items { get; set; } = new List<CreateOrderItemDto>();
     }
 
     public class CreateOrderItemDto

@@ -2,6 +2,7 @@
 using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -15,17 +16,17 @@ namespace FlashEng.Dal.UnitOfWork
         private readonly string _flashcardsConnectionString;
         private readonly string _ordersConnectionString;
 
-        private MySqlConnection? _usersConnection;
-        private MySqlConnection? _flashcardsConnection;
-        private MySqlConnection? _ordersConnection;
+        private MySqlConnection _usersConnection;
+        private MySqlConnection _flashcardsConnection;
+        private MySqlConnection _ordersConnection;
 
-        private MySqlTransaction? _usersTransaction;
-        private MySqlTransaction? _flashcardsTransaction;
-        private MySqlTransaction? _ordersTransaction;
+        private MySqlTransaction _usersTransaction;
+        private MySqlTransaction _flashcardsTransaction;
+        private MySqlTransaction _ordersTransaction;
 
-        private IUserRepository? _users;
-        private IFlashcardRepository? _flashcards;
-        private IOrderRepository? _orders;
+        private IUserRepository _users;
+        private IFlashcardRepository _flashcards;
+        private IOrderRepository _orders;
 
         public UnitOfWork(
             string usersConnectionString,
@@ -41,7 +42,7 @@ namespace FlashEng.Dal.UnitOfWork
         {
             get
             {
-                return _users ??= new Repositories.UserRepository(_usersConnectionString);
+                return _users ?? (_users = new Repositories.UserRepository(_usersConnectionString));
             }
         }
 
@@ -49,7 +50,7 @@ namespace FlashEng.Dal.UnitOfWork
         {
             get
             {
-                return _flashcards ??= new Repositories.FlashcardRepository(_flashcardsConnectionString);
+                return _flashcards ?? (_flashcards = new Repositories.FlashcardRepository(_flashcardsConnectionString));
             }
         }
 
@@ -57,11 +58,11 @@ namespace FlashEng.Dal.UnitOfWork
         {
             get
             {
-                return _orders ??= new Repositories.OrderRepository(_ordersConnectionString);
+                return _orders ?? (_orders = new Repositories.OrderRepository(_ordersConnectionString));
             }
         }
 
-        public async Task BeginTransactionAsync(CancellationToken cancellationToken = default)
+        public async Task BeginTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             // Відкриваємо з'єднання та починаємо транзакції для всіх БД
             _usersConnection = new MySqlConnection(_usersConnectionString);
@@ -77,7 +78,7 @@ namespace FlashEng.Dal.UnitOfWork
             _ordersTransaction = await _ordersConnection.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);
         }
 
-        public async Task CommitAsync(CancellationToken cancellationToken = default)
+        public async Task CommitAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             try
             {
@@ -97,7 +98,7 @@ namespace FlashEng.Dal.UnitOfWork
             }
         }
 
-        public async Task RollbackAsync(CancellationToken cancellationToken = default)
+        public async Task RollbackAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             try
             {

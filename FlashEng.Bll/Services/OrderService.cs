@@ -24,7 +24,7 @@ namespace FlashEng.Bll.Services
             _mapper = mapper;
         }
 
-        public async Task<List<OrderDto>> GetAllOrdersAsync(CancellationToken cancellationToken = default)
+        public async Task<List<OrderDto>> GetAllOrdersAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var orders = await _unitOfWork.Orders.GetAllOrdersAsync(cancellationToken);
             var orderDtos = new List<OrderDto>();
@@ -40,7 +40,7 @@ namespace FlashEng.Bll.Services
             return orderDtos;
         }
 
-        public async Task<OrderDto?> GetOrderByIdAsync(int orderId, CancellationToken cancellationToken = default)
+        public async Task<OrderDto> GetOrderByIdAsync(int orderId, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (orderId <= 0)
                 throw new ValidationException("Order ID must be positive");
@@ -56,7 +56,7 @@ namespace FlashEng.Bll.Services
             return orderDto;
         }
 
-        public async Task<List<OrderDto>> GetUserOrdersAsync(int userId, CancellationToken cancellationToken = default)
+        public async Task<List<OrderDto>> GetUserOrdersAsync(int userId, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (userId <= 0)
                 throw new ValidationException("User ID must be positive");
@@ -75,7 +75,7 @@ namespace FlashEng.Bll.Services
             return orderDtos;
         }
 
-        public async Task<int> CreateOrderAsync(CreateOrderDto createOrderDto, CancellationToken cancellationToken = default)
+        public async Task<int> CreateOrderAsync(CreateOrderDto createOrderDto, CancellationToken cancellationToken = default(CancellationToken))
         {
             // Валідація
             if (createOrderDto.UserId <= 0)
@@ -125,7 +125,7 @@ namespace FlashEng.Bll.Services
             return orderId;
         }
 
-        public async Task<bool> UpdateOrderStatusAsync(int orderId, string status, CancellationToken cancellationToken = default)
+        public async Task<bool> UpdateOrderStatusAsync(int orderId, string status, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (orderId <= 0)
                 throw new ValidationException("Order ID must be positive");
@@ -145,7 +145,7 @@ namespace FlashEng.Bll.Services
             return await _unitOfWork.Orders.UpdateOrderAsync(order, cancellationToken);
         }
 
-        public async Task<bool> DeleteOrderAsync(int orderId, CancellationToken cancellationToken = default)
+        public async Task<bool> DeleteOrderAsync(int orderId, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (orderId <= 0)
                 throw new ValidationException("Order ID must be positive");
@@ -160,13 +160,13 @@ namespace FlashEng.Bll.Services
             return await _unitOfWork.Orders.DeleteOrderAsync(orderId, cancellationToken);
         }
 
-        public async Task<List<ProductDto>> GetAllProductsAsync(CancellationToken cancellationToken = default)
+        public async Task<List<ProductDto>> GetAllProductsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var products = await _unitOfWork.Orders.GetAllProductsAsync(cancellationToken);
             return _mapper.Map<List<ProductDto>>(products);
         }
 
-        public async Task<ProductDto?> GetProductByIdAsync(int productId, CancellationToken cancellationToken = default)
+        public async Task<ProductDto> GetProductByIdAsync(int productId, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (productId <= 0)
                 throw new ValidationException("Product ID must be positive");
@@ -176,7 +176,7 @@ namespace FlashEng.Bll.Services
         }
 
         // Транзакційний метод з використанням UoW
-        public async Task<int> CreateOrderWithItemsTransactionalAsync(CreateOrderDto createOrderDto, CancellationToken cancellationToken = default)
+        public async Task<int> CreateOrderWithItemsTransactionalAsync(CreateOrderDto createOrderDto, CancellationToken cancellationToken = default(CancellationToken))
         {
             // Валідація
             if (createOrderDto.UserId <= 0)

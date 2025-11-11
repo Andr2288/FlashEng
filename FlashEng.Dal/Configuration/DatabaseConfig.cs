@@ -1,5 +1,4 @@
 ﻿using MySql.Data.MySqlClient;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,156 +11,164 @@ namespace FlashEng.Dal.Configuration
     {
         public static async Task EnsureDatabasesCreatedAsync(string serverConnectionString)
         {
-            await using var connection = new MySqlConnection(serverConnectionString);
-            await connection.OpenAsync();
+            using (var connection = new MySqlConnection(serverConnectionString))
+            {
+                await connection.OpenAsync();
 
-            var command = connection.CreateCommand();
+                var command = connection.CreateCommand();
 
-            // Створення бази для користувачів
-            command.CommandText = "CREATE DATABASE IF NOT EXISTS flasheng_users;";
-            await command.ExecuteNonQueryAsync();
+                // Створення бази для користувачів
+                command.CommandText = "CREATE DATABASE IF NOT EXISTS flasheng_users;";
+                await command.ExecuteNonQueryAsync();
 
-            // Створення бази для флешкарток
-            command.CommandText = "CREATE DATABASE IF NOT EXISTS flasheng_flashcards;";
-            await command.ExecuteNonQueryAsync();
+                // Створення бази для флешкарток
+                command.CommandText = "CREATE DATABASE IF NOT EXISTS flasheng_flashcards;";
+                await command.ExecuteNonQueryAsync();
 
-            // Створення бази для замовлень
-            command.CommandText = "CREATE DATABASE IF NOT EXISTS flasheng_orders;";
-            await command.ExecuteNonQueryAsync();
+                // Створення бази для замовлень
+                command.CommandText = "CREATE DATABASE IF NOT EXISTS flasheng_orders;";
+                await command.ExecuteNonQueryAsync();
+            }
         }
 
         public static async Task CreateUsersTablesAsync(string connectionString)
         {
-            await using var connection = new MySqlConnection(connectionString);
-            await connection.OpenAsync();
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
 
-            var createUserProfilesTable = @"
-            CREATE TABLE IF NOT EXISTS UserProfiles (
-                UserId INT AUTO_INCREMENT PRIMARY KEY,
-                Email VARCHAR(255) UNIQUE NOT NULL,
-                PasswordHash VARCHAR(255) NOT NULL,
-                FullName VARCHAR(255) NOT NULL,
-                Role VARCHAR(20) DEFAULT 'User',
-                IsActive BOOLEAN DEFAULT TRUE,
-                CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );";
+                var createUserProfilesTable = @"
+                CREATE TABLE IF NOT EXISTS UserProfiles (
+                    UserId INT AUTO_INCREMENT PRIMARY KEY,
+                    Email VARCHAR(255) UNIQUE NOT NULL,
+                    PasswordHash VARCHAR(255) NOT NULL,
+                    FullName VARCHAR(255) NOT NULL,
+                    Role VARCHAR(20) DEFAULT 'User',
+                    IsActive BOOLEAN DEFAULT TRUE,
+                    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );";
 
-            var createUserSettingsTable = @"
-            CREATE TABLE IF NOT EXISTS UserSettings (
-                SettingsId INT AUTO_INCREMENT PRIMARY KEY,
-                UserId INT UNIQUE NOT NULL,
-                Theme VARCHAR(20) DEFAULT 'Light',
-                Language VARCHAR(5) DEFAULT 'en',
-                NotificationsEnabled BOOLEAN DEFAULT TRUE,
-                FOREIGN KEY (UserId) REFERENCES UserProfiles(UserId) ON DELETE CASCADE
-            );";
+                var createUserSettingsTable = @"
+                CREATE TABLE IF NOT EXISTS UserSettings (
+                    SettingsId INT AUTO_INCREMENT PRIMARY KEY,
+                    UserId INT UNIQUE NOT NULL,
+                    Theme VARCHAR(20) DEFAULT 'Light',
+                    Language VARCHAR(5) DEFAULT 'en',
+                    NotificationsEnabled BOOLEAN DEFAULT TRUE,
+                    FOREIGN KEY (UserId) REFERENCES UserProfiles(UserId) ON DELETE CASCADE
+                );";
 
-            var command = connection.CreateCommand();
-            command.CommandText = createUserProfilesTable;
-            await command.ExecuteNonQueryAsync();
+                var command = connection.CreateCommand();
+                command.CommandText = createUserProfilesTable;
+                await command.ExecuteNonQueryAsync();
 
-            command.CommandText = createUserSettingsTable;
-            await command.ExecuteNonQueryAsync();
+                command.CommandText = createUserSettingsTable;
+                await command.ExecuteNonQueryAsync();
 
-            // Додати тестові дані якщо їх немає
-            await SeedUsersDataAsync(connection);
+                // Додати тестові дані якщо їх немає
+                await SeedUsersDataAsync(connection);
+            }
         }
 
         public static async Task CreateFlashcardsTablesAsync(string connectionString)
         {
-            await using var connection = new MySqlConnection(connectionString);
-            await connection.OpenAsync();
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
 
-            var createFlashcardsTable = @"
-            CREATE TABLE IF NOT EXISTS Flashcards (
-                FlashcardId INT AUTO_INCREMENT PRIMARY KEY,
-                UserId INT NOT NULL,
-                Category VARCHAR(100) NOT NULL,
-                EnglishWord VARCHAR(200) NOT NULL,
-                Translation VARCHAR(200) NOT NULL,
-                Definition TEXT,
-                ExampleSentence TEXT,
-                Pronunciation VARCHAR(100),
-                AudioUrl VARCHAR(500),
-                ImageUrl VARCHAR(500),
-                Difficulty VARCHAR(20) DEFAULT 'Medium',
-                IsPublic BOOLEAN DEFAULT FALSE,
-                Price DECIMAL(10,2),
-                CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                INDEX idx_userid (UserId),
-                INDEX idx_category (Category),
-                INDEX idx_word (EnglishWord)
-            );";
+                var createFlashcardsTable = @"
+                CREATE TABLE IF NOT EXISTS Flashcards (
+                    FlashcardId INT AUTO_INCREMENT PRIMARY KEY,
+                    UserId INT NOT NULL,
+                    Category VARCHAR(100) NOT NULL,
+                    EnglishWord VARCHAR(200) NOT NULL,
+                    Translation VARCHAR(200) NOT NULL,
+                    Definition TEXT,
+                    ExampleSentence TEXT,
+                    Pronunciation VARCHAR(100),
+                    AudioUrl VARCHAR(500),
+                    ImageUrl VARCHAR(500),
+                    Difficulty VARCHAR(20) DEFAULT 'Medium',
+                    IsPublic BOOLEAN DEFAULT FALSE,
+                    Price DECIMAL(10,2),
+                    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    INDEX idx_userid (UserId),
+                    INDEX idx_category (Category),
+                    INDEX idx_word (EnglishWord)
+                );";
 
-            var command = connection.CreateCommand();
-            command.CommandText = createFlashcardsTable;
-            await command.ExecuteNonQueryAsync();
+                var command = connection.CreateCommand();
+                command.CommandText = createFlashcardsTable;
+                await command.ExecuteNonQueryAsync();
 
-            await SeedFlashcardsDataAsync(connection);
+                await SeedFlashcardsDataAsync(connection);
+            }
         }
 
         public static async Task CreateOrdersTablesAsync(string connectionString)
         {
-            await using var connection = new MySqlConnection(connectionString);
-            await connection.OpenAsync();
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
 
-            var createProductsTable = @"
-            CREATE TABLE IF NOT EXISTS Products (
-                ProductId INT AUTO_INCREMENT PRIMARY KEY,
-                Name VARCHAR(255) NOT NULL,
-                Price DECIMAL(10,2) NOT NULL,
-                IsAvailable BOOLEAN DEFAULT TRUE,
-                CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );";
+                var createProductsTable = @"
+                CREATE TABLE IF NOT EXISTS Products (
+                    ProductId INT AUTO_INCREMENT PRIMARY KEY,
+                    Name VARCHAR(255) NOT NULL,
+                    Price DECIMAL(10,2) NOT NULL,
+                    IsAvailable BOOLEAN DEFAULT TRUE,
+                    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );";
 
-            var createOrdersTable = @"
-            CREATE TABLE IF NOT EXISTS Orders (
-                OrderId INT AUTO_INCREMENT PRIMARY KEY,
-                UserId INT NOT NULL,
-                TotalAmount DECIMAL(10,2) NOT NULL DEFAULT 0,
-                Status VARCHAR(20) DEFAULT 'Pending',
-                OrderDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );";
+                var createOrdersTable = @"
+                CREATE TABLE IF NOT EXISTS Orders (
+                    OrderId INT AUTO_INCREMENT PRIMARY KEY,
+                    UserId INT NOT NULL,
+                    TotalAmount DECIMAL(10,2) NOT NULL DEFAULT 0,
+                    Status VARCHAR(20) DEFAULT 'Pending',
+                    OrderDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );";
 
-            var createOrderItemsTable = @"
-            CREATE TABLE IF NOT EXISTS OrderItems (
-                OrderItemId INT AUTO_INCREMENT PRIMARY KEY,
-                OrderId INT NOT NULL,
-                ProductId INT NOT NULL,
-                Quantity INT NOT NULL,
-                UnitPrice DECIMAL(10,2) NOT NULL,
-                LineTotal DECIMAL(10,2) NOT NULL,
-                FOREIGN KEY (OrderId) REFERENCES Orders(OrderId) ON DELETE CASCADE,
-                FOREIGN KEY (ProductId) REFERENCES Products(ProductId) ON DELETE RESTRICT
-            );";
+                var createOrderItemsTable = @"
+                CREATE TABLE IF NOT EXISTS OrderItems (
+                    OrderItemId INT AUTO_INCREMENT PRIMARY KEY,
+                    OrderId INT NOT NULL,
+                    ProductId INT NOT NULL,
+                    Quantity INT NOT NULL,
+                    UnitPrice DECIMAL(10,2) NOT NULL,
+                    LineTotal DECIMAL(10,2) NOT NULL,
+                    FOREIGN KEY (OrderId) REFERENCES Orders(OrderId) ON DELETE CASCADE,
+                    FOREIGN KEY (ProductId) REFERENCES Products(ProductId) ON DELETE RESTRICT
+                );";
 
-            var createPaymentsTable = @"
-            CREATE TABLE IF NOT EXISTS Payments (
-                PaymentId INT AUTO_INCREMENT PRIMARY KEY,
-                OrderId INT NOT NULL UNIQUE,
-                Amount DECIMAL(10,2) NOT NULL,
-                PaymentMethod VARCHAR(50) NOT NULL,
-                Status VARCHAR(20) DEFAULT 'Pending',
-                PaymentDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (OrderId) REFERENCES Orders(OrderId) ON DELETE CASCADE
-            );";
+                var createPaymentsTable = @"
+                CREATE TABLE IF NOT EXISTS Payments (
+                    PaymentId INT AUTO_INCREMENT PRIMARY KEY,
+                    OrderId INT NOT NULL UNIQUE,
+                    Amount DECIMAL(10,2) NOT NULL,
+                    PaymentMethod VARCHAR(50) NOT NULL,
+                    Status VARCHAR(20) DEFAULT 'Pending',
+                    PaymentDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (OrderId) REFERENCES Orders(OrderId) ON DELETE CASCADE
+                );";
 
-            var command = connection.CreateCommand();
-            command.CommandText = createProductsTable;
-            await command.ExecuteNonQueryAsync();
+                var command = connection.CreateCommand();
+                command.CommandText = createProductsTable;
+                await command.ExecuteNonQueryAsync();
 
-            command.CommandText = createOrdersTable;
-            await command.ExecuteNonQueryAsync();
+                command.CommandText = createOrdersTable;
+                await command.ExecuteNonQueryAsync();
 
-            command.CommandText = createOrderItemsTable;
-            await command.ExecuteNonQueryAsync();
+                command.CommandText = createOrderItemsTable;
+                await command.ExecuteNonQueryAsync();
 
-            command.CommandText = createPaymentsTable;
-            await command.ExecuteNonQueryAsync();
+                command.CommandText = createPaymentsTable;
+                await command.ExecuteNonQueryAsync();
 
-            await CreateOrderStoredProceduresAsync(connection);
-            await SeedOrdersDataAsync(connection);
+                await CreateOrderStoredProceduresAsync(connection);
+                await SeedOrdersDataAsync(connection);
+            }
         }
 
         private static async Task CreateOrderStoredProceduresAsync(MySqlConnection connection)
