@@ -31,9 +31,9 @@ namespace FlashEng.Bll.Services
 
             foreach (var order in orders)
             {
-                var orderDto = _mapper.Map<OrderDto>(order);
+                var orderDto = _mapper.Map<Order, OrderDto>(order);
                 var orderItems = await _unitOfWork.Orders.GetOrderItemsAsync(order.OrderId, cancellationToken);
-                orderDto.Items = _mapper.Map<List<OrderItemDto>>(orderItems);
+                orderDto.Items = _mapper.Map<List<OrderItem>, List<OrderItemDto>>(orderItems);
                 orderDtos.Add(orderDto);
             }
 
@@ -49,9 +49,9 @@ namespace FlashEng.Bll.Services
             if (order == null)
                 return null;
 
-            var orderDto = _mapper.Map<OrderDto>(order);
+            var orderDto = _mapper.Map<Order, OrderDto>(order);
             var orderItems = await _unitOfWork.Orders.GetOrderItemsAsync(orderId, cancellationToken);
-            orderDto.Items = _mapper.Map<List<OrderItemDto>>(orderItems);
+            orderDto.Items = _mapper.Map<List<OrderItem>, List<OrderItemDto>>(orderItems);
 
             return orderDto;
         }
@@ -66,9 +66,9 @@ namespace FlashEng.Bll.Services
 
             foreach (var order in orders)
             {
-                var orderDto = _mapper.Map<OrderDto>(order);
+                var orderDto = _mapper.Map<Order, OrderDto>(order);
                 var orderItems = await _unitOfWork.Orders.GetOrderItemsAsync(order.OrderId, cancellationToken);
-                orderDto.Items = _mapper.Map<List<OrderItemDto>>(orderItems);
+                orderDto.Items = _mapper.Map<List<OrderItem>, List<OrderItemDto>>(orderItems);
                 orderDtos.Add(orderDto);
             }
 
@@ -90,7 +90,10 @@ namespace FlashEng.Bll.Services
                 throw new NotFoundException("User", createOrderDto.UserId);
 
             // Створення замовлення
-            var order = _mapper.Map<Order>(createOrderDto);
+            var order = _mapper.Map<CreateOrderDto, Order>(createOrderDto);
+            order.Status = "Pending";
+            order.OrderDate = DateTime.Now;
+
             var orderId = await _unitOfWork.Orders.CreateOrderAsync(order, cancellationToken);
 
             // Додавання позицій
@@ -163,7 +166,7 @@ namespace FlashEng.Bll.Services
         public async Task<List<ProductDto>> GetAllProductsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var products = await _unitOfWork.Orders.GetAllProductsAsync(cancellationToken);
-            return _mapper.Map<List<ProductDto>>(products);
+            return _mapper.Map<List<Product>, List<ProductDto>>(products);
         }
 
         public async Task<ProductDto> GetProductByIdAsync(int productId, CancellationToken cancellationToken = default(CancellationToken))
@@ -172,7 +175,7 @@ namespace FlashEng.Bll.Services
                 throw new ValidationException("Product ID must be positive");
 
             var product = await _unitOfWork.Orders.GetProductByIdAsync(productId, cancellationToken);
-            return product != null ? _mapper.Map<ProductDto>(product) : null;
+            return product != null ? _mapper.Map<Product, ProductDto>(product) : null;
         }
 
         // Транзакційний метод з використанням UoW

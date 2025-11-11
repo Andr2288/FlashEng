@@ -27,7 +27,7 @@ namespace FlashEng.Bll.Services
         public async Task<List<FlashcardDto>> GetAllFlashcardsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var flashcards = await _unitOfWork.Flashcards.GetAllFlashcardsAsync(cancellationToken);
-            return _mapper.Map<List<FlashcardDto>>(flashcards);
+            return _mapper.Map<List<Flashcard>, List<FlashcardDto>>(flashcards);
         }
 
         public async Task<List<FlashcardDto>> GetUserFlashcardsAsync(int userId, CancellationToken cancellationToken = default(CancellationToken))
@@ -36,7 +36,7 @@ namespace FlashEng.Bll.Services
                 throw new ValidationException("User ID must be positive");
 
             var flashcards = await _unitOfWork.Flashcards.GetUserFlashcardsAsync(userId, cancellationToken);
-            return _mapper.Map<List<FlashcardDto>>(flashcards);
+            return _mapper.Map<List<Flashcard>, List<FlashcardDto>>(flashcards);
         }
 
         public async Task<FlashcardDto> GetFlashcardByIdAsync(int flashcardId, CancellationToken cancellationToken = default(CancellationToken))
@@ -45,7 +45,7 @@ namespace FlashEng.Bll.Services
                 throw new ValidationException("Flashcard ID must be positive");
 
             var flashcard = await _unitOfWork.Flashcards.GetFlashcardByIdAsync(flashcardId, cancellationToken);
-            return flashcard != null ? _mapper.Map<FlashcardDto>(flashcard) : null;
+            return flashcard != null ? _mapper.Map<Flashcard, FlashcardDto>(flashcard) : null;
         }
 
         public async Task<List<FlashcardDto>> GetFlashcardsByCategoryAsync(string category, CancellationToken cancellationToken = default(CancellationToken))
@@ -54,7 +54,7 @@ namespace FlashEng.Bll.Services
                 throw new ValidationException("Category cannot be empty");
 
             var flashcards = await _unitOfWork.Flashcards.GetFlashcardsByCategoryAsync(category, cancellationToken);
-            return _mapper.Map<List<FlashcardDto>>(flashcards);
+            return _mapper.Map<List<Flashcard>, List<FlashcardDto>>(flashcards);
         }
 
         public async Task<List<FlashcardDto>> SearchFlashcardsAsync(string searchTerm, CancellationToken cancellationToken = default(CancellationToken))
@@ -63,7 +63,7 @@ namespace FlashEng.Bll.Services
                 throw new ValidationException("Search term cannot be empty");
 
             var flashcards = await _unitOfWork.Flashcards.SearchFlashcardsAsync(searchTerm, cancellationToken);
-            return _mapper.Map<List<FlashcardDto>>(flashcards);
+            return _mapper.Map<List<Flashcard>, List<FlashcardDto>>(flashcards);
         }
 
         public async Task<int> CreateFlashcardAsync(CreateFlashcardDto createFlashcardDto, CancellationToken cancellationToken = default(CancellationToken))
@@ -86,7 +86,7 @@ namespace FlashEng.Bll.Services
             if (user == null)
                 throw new NotFoundException("User", createFlashcardDto.UserId);
 
-            var flashcard = _mapper.Map<Flashcard>(createFlashcardDto);
+            var flashcard = _mapper.Map<CreateFlashcardDto, Flashcard>(createFlashcardDto);
             flashcard.CreatedAt = DateTime.Now;
             flashcard.UpdatedAt = DateTime.Now;
 
@@ -111,7 +111,7 @@ namespace FlashEng.Bll.Services
             if (string.IsNullOrWhiteSpace(updateFlashcardDto.Translation))
                 throw new ValidationException("Translation is required");
 
-            _mapper.Map(updateFlashcardDto, existingFlashcard);
+            _mapper.Map<UpdateFlashcardDto, Flashcard>(updateFlashcardDto, existingFlashcard);
             existingFlashcard.UpdatedAt = DateTime.Now;
 
             return await _unitOfWork.Flashcards.UpdateFlashcardAsync(existingFlashcard, cancellationToken);

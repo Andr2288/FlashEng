@@ -7,6 +7,7 @@ using FlashEng.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,7 +28,7 @@ namespace FlashEng.Bll.Services
         public async Task<List<UserDto>> GetAllUsersAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var users = await _unitOfWork.Users.GetAllUsersAsync(cancellationToken);
-            return _mapper.Map<List<UserDto>>(users);
+            return _mapper.Map<List<User>, List<UserDto>>(users);
         }
 
         public async Task<UserDto> GetUserByIdAsync(int userId, CancellationToken cancellationToken = default(CancellationToken))
@@ -36,7 +37,7 @@ namespace FlashEng.Bll.Services
                 throw new ValidationException("User ID must be positive");
 
             var user = await _unitOfWork.Users.GetUserByIdAsync(userId, cancellationToken);
-            return user != null ? _mapper.Map<UserDto>(user) : null;
+            return user != null ? _mapper.Map<User, UserDto>(user) : null;
         }
 
         public async Task<UserDto> GetUserByEmailAsync(string email, CancellationToken cancellationToken = default(CancellationToken))
@@ -45,7 +46,7 @@ namespace FlashEng.Bll.Services
                 throw new ValidationException("Email cannot be empty");
 
             var user = await _unitOfWork.Users.GetUserByEmailAsync(email, cancellationToken);
-            return user != null ? _mapper.Map<UserDto>(user) : null;
+            return user != null ? _mapper.Map<User, UserDto>(user) : null;
         }
 
         public async Task<int> CreateUserAsync(CreateUserDto createUserDto, CancellationToken cancellationToken = default(CancellationToken))
@@ -65,7 +66,11 @@ namespace FlashEng.Bll.Services
             if (existingUser != null)
                 throw new BusinessConflictException("User with this email already exists");
 
-            var user = _mapper.Map<User>(createUserDto);
+            var user = _mapper.Map<CreateUserDto, User>(createUserDto);
+
+            // Хешуємо пароль тут, бо AutoMapper 8.0.0 має проблеми з custom mapping
+            user.PasswordHash = HashPassword(createUserDto.Password);
+
             var userId = await _unitOfWork.Users.CreateUserAsync(user, cancellationToken);
 
             // Створюємо налаштування за замовчуванням
@@ -94,7 +99,7 @@ namespace FlashEng.Bll.Services
             if (string.IsNullOrWhiteSpace(updateUserDto.FullName))
                 throw new ValidationException("Full name is required");
 
-            _mapper.Map(updateUserDto, existingUser);
+            _mapper.Map<UpdateUserDto, User>(updateUserDto, existingUser);
 
             return await _unitOfWork.Users.UpdateUserAsync(existingUser, cancellationToken);
         }
@@ -117,7 +122,7 @@ namespace FlashEng.Bll.Services
                 throw new ValidationException("User ID must be positive");
 
             var settings = await _unitOfWork.Users.GetUserSettingsAsync(userId, cancellationToken);
-            return settings != null ? _mapper.Map<UserSettingsDto>(settings) : null;
+            return settings != null ? _mapper.Map<UserSettings, UserSettingsDto>(settings) : null;
         }
 
         public async Task<bool> UpdateUserSettingsAsync(int userId, UserSettingsDto settingsDto, CancellationToken cancellationToken = default(CancellationToken))
@@ -129,10 +134,23 @@ namespace FlashEng.Bll.Services
             if (existingSettings == null)
                 throw new NotFoundException("UserSettings", userId);
 
-            var settings = _mapper.Map<UserSettings>(settingsDto);
+            var settings = _mapper.Map<UserSettingsDto, UserSettings>(settingsDto);
             settings.UserId = userId; // Переконуємося що ID правильний
 
             return await _unitOfWork.Users.UpdateUserSettingsAsync(settings, cancellationToken);
+        }
+
+        // Простий метод хешування пароля (для продакшену використовуйте BCrypt або Argon2)
+        private static string HashPassword(string password)
+        {
+            if (string.IsNullOrEmpty(password))
+                return string.Empty;
+
+            using (var sha256 = SHA256.Create())
+            {
+                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password + "FlashEngSalt"));
+                return Convert.ToBase64String(hashedBytes);
+            }
         }
     }
 }

@@ -75,12 +75,12 @@ var app = builder.Build();
 try
 {
     Log.Information("Initializing databases...");
-    
+
     await DatabaseConfig.EnsureDatabasesCreatedAsync(serverConnectionString);
     await DatabaseConfig.CreateUsersTablesAsync(usersConnectionString);
     await DatabaseConfig.CreateFlashcardsTablesAsync(flashcardsConnectionString);
     await DatabaseConfig.CreateOrdersTablesAsync(ordersConnectionString);
-    
+
     Log.Information("Databases initialized successfully");
 }
 catch (Exception ex)
@@ -96,7 +96,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "FlashEng API v1");
-        c.RoutePrefix = string.Empty; // Swagger на root URL
+        c.RoutePrefix = "swagger"; // Swagger доступний на /swagger
     });
 }
 
